@@ -1,0 +1,56 @@
+A = {1: 0.8, 2: 0.7, 3: 0.1, 4: 1.0, 5: 0.9, 6: 0.3}
+B = {1: 0.3, 2: 0.4, 3: 0.4, 4: 1.0, 5: 0.0, 6: 0.0}
+
+sum = {x: min(1, A[x] + B[x]) for x in A}
+sum
+
+difference = {x: max(0, round(A[x] - B[x],1)) for x in A}
+difference
+
+cartesian_product = {((x, y), min(A[x], B[y])) for x in A for y in B}
+cartesian_product
+
+union = {x: max(A[x], B[x]) for x in A}
+union
+
+intersection = {x: min(A[x], B[x]) for x in A}
+intersection
+
+complement_A = {x: round(1 - A[x],1) for x in A}
+complement_A
+
+
+A = [(1, 1, 0.8), (1, 2, 0.7), (2, 1, 0.4), (2, 2, 1.0)]
+B = [(1, 1, 0.5), (1, 2, 0.6), (2, 1, 0.7), (2, 2, 0.9)]
+
+def maxMinComposition(A, B):
+    result = []
+    for a in A:
+        currentMax = 0
+        for b in B:
+            if a[1] == b[0]:
+                minValue = min(a[2], b[2])
+                currentMax = max(currentMax, minValue)
+        result.append((a[0], b[1], currentMax))
+    return result
+
+def maxProductComposition(A, B):
+    result = []
+    for a in A:
+        currentMax = 0
+        for b in B:
+            if a[1] == b[0]:
+                productValue = a[2] * b[2]
+                currentMax = max(currentMax, productValue)
+        result.append((a[0], b[1], currentMax))
+    return result
+
+maxMin = maxMinComposition(A, B)
+print("Max-Min Composition:")
+for entry in maxMin:
+    print(f"({entry[0]}, {entry[1]}), {entry[2]:.2f}")
+
+maxProd = maxProductComposition(A, B)
+print("\nMax-Product Composition:")
+for entry in maxProd:
+    print(f"({entry[0]}, {entry[1]}), {entry[2]:.2f}")

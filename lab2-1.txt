@@ -1,0 +1,56 @@
+Implement BFS and DFS for a graph using an adjacency list
+
+#BFS Implementation
+
+from collections import deque
+
+def bfs(graph, start):
+	visited = set()
+	queue = deque([start])
+	
+	while queue:
+		node = queue.popleft()
+		if node not in visited:
+			print(node, end=" ")
+			visited.add(node)
+			
+			for neighbor in graph[node]:
+				if neighbor not in visited:
+					queue.append(neighbor)
+					
+graph = {
+	'A': ['B', 'C'],
+	'B': ['A', 'D', 'E'],
+	'C': ['A', 'F'],
+	'D': ['B'],
+	'E': ['B', 'F'],
+	'F': ['C', 'E']
+}
+
+print("BFS traversal starting from A:")
+bfs(graph, 'A')
+
+#Output BFS traversal starting from A: A B C D E F
+
+
+
+
+#DFS Implementation
+
+def dfs(graph, node, visited=None):
+	if visited is None:
+		visited = set()
+	
+	visited.add(node)
+	print(node, end=" ")
+	
+	for neighbor in graph[node]:
+		if neighbor not in visited:
+			dfs(graph, neighbor, visited)
+			
+print("\nDFS traversal starting from A:")
+dfs(graph, 'A')
+
+#Output DFS traversal starting from A: A B D E F C
+
+

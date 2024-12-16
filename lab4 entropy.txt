@@ -1,0 +1,43 @@
+import numpy as np
+from collections import Counter
+import math
+
+# Training instance
+X = [1, 1, 0, 1]
+Y = [1, 1, 0, 0]
+Z = [1, 0, 1, 0]
+Class = [1, 1, 2, 2]
+
+def calculate_entropy(class_labels):
+    total = len(class_labels)
+    label_counts = Counter(class_labels)
+    entropy = 0
+    for count in label_counts.values():
+        probability = count / total
+        entropy -= probability * math.log2(probability)
+    return entropy
+
+def calculate_info_gain(feature, class_labels):
+    total = len(feature)
+    feature_values = set(feature)
+    weighted_entropy = 0
+    for value in feature_values:
+        subset = [class_labels[i] for i in range(total) if feature[i] == value]
+        subset_entropy = calculate_entropy(subset)
+        weighted_entropy += (len(subset) / total) * subset_entropy
+    overall_entropy = calculate_entropy(class_labels)
+    information_gain = overall_entropy - weighted_entropy
+    return information_gain
+
+# Calculate entropy of the class
+class_entropy = calculate_entropy(Class)
+print(f"Entropy of Class: {class_entropy}")
+
+# Calculate information gain for each feature
+info_gain_X = calculate_info_gain(X, Class)
+info_gain_Y = calculate_info_gain(Y, Class)
+info_gain_Z = calculate_info_gain(Z, Class)
+
+print(f"Information Gain for X: {info_gain_X}")
+print(f"Information Gain for Y: {info_gain_Y}")
+print(f"Information Gain for Z: {info_gain_Z}")

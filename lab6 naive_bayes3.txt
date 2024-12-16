@@ -1,0 +1,101 @@
+import numpy as np
+from sklearn.datasets import load_iris
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+totalSamples = len(y)
+classes = np.unique(y)
+
+# Calculate prior probabilities for each class
+classProb = {}
+for cls in classes:
+    classProb[cls] = round(np.sum(y == cls) / totalSamples, 4)
+print("Class Probabilities:", classProb)
+
+# Calculate mean and variance for each class and feature
+clsMeans = {}
+clsVars = {}
+for cls in classes:
+    X_cls = X[y == cls]
+    clsMeans[cls] = np.round(np.mean(X_cls, axis=0), 4)
+    clsVars[cls] = np.round(np.var(X_cls, axis=0), 4)
+
+print("\nMean by Class:", clsMeans)
+print("\nVariance by Class:", clsVars)
+
+def gaussianProb(x, cls):
+    mean = clsMeans[cls]
+    variance = clsVars[cls]
+    exponent = np.exp(-((x - mean) ** 2) / (2 * variance))
+    return (1 / np.sqrt(2 * np.pi * variance)) * exponent
+
+def predict(X):
+    predictions = []
+    for x in X:
+        postProb = {}
+        for cls in classes:
+            prior = np.log(classProb[cls])
+            prob = np.sum(np.log(gaussianProb(x, cls)))
+            postProb[cls] = prior + prob
+        predClass = max(postProb, key=postProb.get)
+        predictions.append(predClass)
+    return np.array(predictions)
+
+# Split the data into training and testing sets
+indices = np.random.permutation(totalSamples)
+trainSize = int(0.7 * totalSamples)
+trainIndices = indices[:trainSize]
+testIndices = indices[trainSize:]
+
+X_train, X_test = X[trainIndices], X[testIndices]
+y_train, y_test = y[trainIndices], y[testIndices]
+
+print("\nTraining set size:", len(X_train))
+print("Testing set size:", len(X_test))
+
+# Train the model
+clsMeans = {}
+clsVars = {}
+classProb = {}
+for cls in classes:
+    X_cls = X_train[y_train == cls]
+    clsMeans[cls] = np.mean(X_cls, axis=0)
+    clsVars[cls] = np.var(X_cls, axis=0)
+    classProb[cls] = len(X_cls) / len(X_train)
+
+# Test the model
+predictions = predict(X_test)
+
+# Confusion matrix and performance metrics
+confusion_matrix = np.zeros((len(classes), len(classes)), dtype=int)
+for true, pred in zip(y_test, predictions):
+    confusion_matrix[true, pred] += 1
+
+print("\nConfusion Matrix:")
+print(confusion_matrix)
+
+accuracy = np.trace(confusion_matrix) / np.sum(confusion_matrix)
+precision = []
+recall = []
+f1_scores = []
+for cls in classes:
+    tp = confusion_matrix[cls, cls]
+    fp = np.sum(confusion_matrix[:, cls]) - tp
+    fn = np.sum(confusion_matrix[cls, :]) - tp
+    tn = np.sum(confusion_matrix) - (tp + fp + fn)
+
+    prec = tp / (tp + fp) if tp + fp > 0 else 0
+    rec = tp / (tp + fn) if tp + fn > 0 else 0
+    f1 = 2 * prec * rec / (prec + rec) if prec + rec > 0 else 0
+
+    precision.append(prec)
+    recall.append(rec)
+    f1_scores.append(f1)
+
+print("\nAccuracy:", round(accuracy, 4))
+print("Precision by Class:", np.round(precision, 4))
+print("Recall by Class:", np.round(recall, 4))
+print("F1 Score by Class:", np.round(f1_scores, 4))

@@ -1,0 +1,85 @@
+#Water jug, Start from (0, 0) and reach to (2, 0) Provide the solution using BFS and DFS
+both.
+
+#BFS Implementation
+
+from collections import deque
+
+def bfs(A, B, D):
+    visited = set()
+    queue = deque([(0, 0)])
+    
+    while queue:
+        x, y = queue.popleft()
+        
+        # Check if we reached the goal
+        if x == D or y == D:
+            return True
+        
+        # If already visited, skip
+        if (x, y) in visited:
+            continue
+        
+        visited.add((x, y))
+        
+        # Generate all possible states
+        possible_states = [
+            (A, y),    # Fill jug 1
+            (x, B),    # Fill jug 2
+            (0, y),    # Empty jug 1
+            (x, 0),    # Empty jug 2
+            (x - max(0, B - y), min(B, x + y)),  # Pour jug 1 -> jug 2
+            (min(A, x + y), y - max(0, A - x))   # Pour jug 2 -> jug 1
+        ]
+        
+        for state in possible_states:
+            if state not in visited:
+                queue.append(state)
+    
+    return False
+
+# Example usage
+A = 2
+B = 3
+D = 2
+print(bfs(A, B, D))  # Should print True if it's possible
+
+
+
+#DFS Implementation
+
+def dfs(A, B, D, visited=set(), x=0, y=0):
+    # Check if we reached the goal
+    if x == D or y == D:
+        return True
+    
+    # If already visited, skip
+    if (x, y) in visited:
+        return False
+    
+    visited.add((x, y))
+    
+    # Generate all possible states
+    possible_states = [
+        (A, y),    # Fill jug 1
+        (x, B),    # Fill jug 2
+        (0, y),    # Empty jug 1
+        (x, 0),    # Empty jug 2
+        (x - max(0, B - y), min(B, x + y)),  # Pour jug 1 -> jug 2
+        (min(A, x + y), y - max(0, A - x))   # Pour jug 2 -> jug 1
+    ]
+    
+    for state in possible_states:
+        if dfs(A, B, D, visited, state[0], state[1]):
+            return True
+            
+    return False
+
+# Example usage
+A = 2
+B = 3
+D = 2
+print(dfs(A, B, D))  # Should print True if it's possible
+
+
+

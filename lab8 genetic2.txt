@@ -1,0 +1,63 @@
+lower_bound = 1
+upper_bound = 50
+pop_size = 20
+generations = 10
+crossover_probability = 0.2
+mutation_probability = 0.01
+
+
+import random
+import math
+
+
+def fitness_function(x):
+    return x * math.sin(10 * math.pi * x) + 10
+	
+	
+population = [round(random.uniform(lower_bound, upper_bound),2) for _ in range(pop_size)]
+print(population)
+
+
+for generation in range(generations):
+    # Calculate fitness for the population
+    fitness = [fitness_function(x) for x in population]
+
+    # Selection: Tournament selection
+    tournamnet=2
+    selected_population = []
+    for _ in range(pop_size):
+        tournament = random.sample(list(zip(population, fitness)), tournament_size)
+        winner = max(tournament, key=lambda x: x[1])
+        selected_population.append(winner[0])
+
+    # Crossover
+    next_generation = []
+    for i in range(0, len(selected_population), 2):
+        parent1 = selected_population[i]
+        parent2 = selected_population[(i + 1) % len(selected_population)]
+        if random.random() < crossover_probability:
+            alpha = random.random()
+            child1 = round(alpha * parent1 + (1 - alpha) * parent2, 2)
+            child2 = round(alpha * parent2 + (1 - alpha) * parent1, 2)
+        else:
+            child1, child2 = parent1, parent2
+        next_generation.extend([child1, child2])
+
+    # Mutation
+    for i in range(len(next_generation)):
+        if random.random() < mutation_probability:
+            next_generation[i] += round(random.uniform(-1, 1), 2)
+            next_generation[i] = round(max(lower_bound, min(upper_bound, next_generation[i])), 2)
+
+    # Update population
+    population = next_generation
+
+    # Print best individual of the generation
+    fitness = [fitness_function(x) for x in population]
+    best_fitness = round(max(fitness), 2)
+    print(f"Generation {generation + 1}: Best Fitness = {best_fitness}")
+
+
+# Final result
+best_fitness = max(fitness)
+print(f"Best Fitness: {round(best_fitness,2)}")

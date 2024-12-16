@@ -1,0 +1,41 @@
+#Implement BFS to detect if a path exists between two nodes in a graph
+
+from collections import deque
+
+def bfs_path_exists(graph, start, target):
+	visited = set()
+	queue = deque([start])
+
+	while queue:
+		node = queue.popleft()
+		
+	if node == target:
+		return True
+		
+	if node not in visited:
+		visited.add(node)
+		
+		for neighbor in graph[node]:
+			if neighbor not in visited:
+				queue.append(neighbor)
+				
+	return False
+	
+graph = {
+'A': ['B', 'C'],
+'B': ['A', 'D', 'E'],
+'C': ['A', 'F'],
+'D': ['B'],
+'E': ['B', 'F'],
+'F': ['C', 'E']
+}
+
+start_node = 'A'
+target_node = 'F'
+path_exists = bfs_path_exists(graph, start_node, target_node)
+
+if path_exists:
+	print(f"A path exists between {start_node} and {target_node}.")
+else:
+	print(f"No path exists between {start_node} and {target_node}.")
+	

@@ -1,0 +1,67 @@
+# x=[12,25,5,19] and fitness function is f(x)=x^2, perform selection,crossover and mutation
+
+import random
+
+x=[12,25,5,19]
+print("x=",x)
+
+binary=[bin(i)[2:].zfill(5) for i in x]
+print("Binary = ",binary)
+
+square = [i*i for i in x]
+print("x^2 =",square)
+
+sum=sum(square)
+probability = [round(i/sum,4) for i in square]
+print("Probability = ",probability)
+
+avg= sum/len(x)
+
+expected_value=[round(i/avg,4) for i in square]
+print("Expected value = ",expected_value)
+
+parent_count= [round(i)for i in expected_value]
+print("Parent count = ",parent_count)
+
+#parent_selection
+parent= []
+for i,j in zip(parent_count,binary):
+    for _ in range (i):
+        parent.append(j)
+print(parent)
+
+set_diff= set(binary).difference(set(parent))
+print(set_diff)
+parent.append(max(set_diff))
+print("Parent selection = ",parent)
+
+#crossover
+offspring = []
+def crossover(parent1, parent2):
+    point = random.randint(1, len(parent1) - 1)
+    offspring1 = parent1[:point] + parent2[point:]
+    offspring2 = parent2[:point] + parent1[point:]
+    return offspring1, offspring2
+
+for i in range(0, len(parent), 2):
+    parent1 = parent[i]
+    parent2 = parent[i+1]
+    offspring1, offspring2 = crossover(parent1, parent2)
+    offspring.append(offspring1)
+    offspring.append(offspring2)
+
+print("Offspring after crossover =", offspring)
+
+#mutation
+def mutate(chromosome, mutation_rate=0.1):
+    mutated = list(chromosome)
+    for i in range(len(mutated)):
+        if random.random() < mutation_rate:
+            mutated[i] = '1' if mutated[i] == '0' else '0'  # Flip the bit
+    return ''.join(mutated)
+
+# Apply mutation
+mutation_rate = 0.1
+mutated_offspring = [mutate(child, mutation_rate) for child in offspring]
+
+print("Offspring after mutation = ", mutated_offspring)

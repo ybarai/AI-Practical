@@ -1,0 +1,72 @@
+# Create a fuzzy control system for temperature regulation using the Zadeh Max-Min method.
+# The system should take input temperature (Low, Medium, High) and output fan speed (Slow,
+# Medium, Fast). Implement the fuzzy rules and apply the Max-Min method to infer the output.
+
+import numpy as np
+
+# Fuzzy sets for temperature
+temperature_sets = {
+    'low': lambda x: max(1 - x / 20, 0),
+    'medium': lambda x: max(min((x - 10) / 10, (30 - x) / 10), 0),
+    'high': lambda x: max((x - 20) / 20, 0)
+}
+
+
+# Fuzzy sets for fan speed
+fan_speed_sets = {
+    'slow': lambda x: max(1 - x / 20, 0),
+    'medium': lambda x: max(min((x - 10) / 10, (30 - x) / 10), 0),
+    'fast': lambda x: max((x - 20) / 20, 0)
+}
+
+# Fuzzify the input temperature
+def fuzzify_temperature(temp_label):
+    temp_values = {'low': 10, 'medium': 20, 'high': 30}
+    return {key: func(temp_values[temp_label]) for key, func in temperature_sets.items()}
+	
+	
+# Apply fuzzy rules using the Zadeh Max-Min method
+def infer_output(fuzzy_temp):
+    output_range = np.linspace(0, 40, 100)  # Fan speed range (0 to 40)
+    rule_outputs = {
+        'slow': np.minimum(fuzzy_temp['low'], [fan_speed_sets['slow'](x) for x in output_range]),
+        'medium': np.minimum(fuzzy_temp['medium'], [fan_speed_sets['medium'](x) for x in output_range]),
+        'fast': np.minimum(fuzzy_temp['high'], [fan_speed_sets['fast'](x) for x in output_range])
+    }
+    # Aggregate outputs using the maximum operation
+    aggregated_output = np.maximum.reduce([rule_outputs['slow'], rule_outputs['medium'], rule_outputs['fast']])
+    
+    return output_range, aggregated_output
+	
+# Defuzzify the output using the centroid method
+def defuzzify_centroid(output_range, aggregated_output):
+    numerator = np.sum(output_range * aggregated_output)
+    denominator = np.sum(aggregated_output)
+    return numerator / denominator if denominator != 0 else 0
+
+
+# Main function to take user input and calculate fan speed
+def main():
+    temp_input = input("Enter the temperature level (Low, Medium, High): ").strip().lower()
+    if temp_input not in ['low', 'medium', 'high']:
+        print("Invalid input! Please enter 'Low', 'Medium', or 'High'.")
+        return
+    
+    fuzzy_temp = fuzzify_temperature(temp_input)
+    output_range, aggregated_output = infer_output(fuzzy_temp)
+    
+    fan_speed_crisp = defuzzify_centroid(output_range, aggregated_output)
+    
+    if fan_speed_crisp < 15:
+        fan_speed_category = "Slow"
+    elif fan_speed_crisp < 25:
+        fan_speed_category = "Medium"
+    else:
+        fan_speed_category = "Fast"
+    
+    print(f"Recommended Fan Speed: {fan_speed_category}")
+	
+	
+if __name__ == "__main__":
+    main()
+	

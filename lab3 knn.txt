@@ -1,0 +1,34 @@
+import numpy as np
+from collections import Counter
+
+# Training data
+brightness = np.array([40, 50, 60, 10, 70, 60, 25])
+saturation = np.array([20, 50, 90, 25, 70, 10, 80])
+labels = np.array(['Red', 'Blue', 'Blue', 'Red', 'Blue', 'Red', 'Blue'])
+
+# Test instance
+test_brightness = 20
+test_saturation = 35
+
+# Vary k from 1 to 7
+for k in range(1, 8):
+    distances = []
+    for i in range(len(brightness)):
+        # Calculate Euclidean distance
+        dist = np.sqrt((brightness[i] - test_brightness) ** 2 + (saturation[i] - test_saturation) ** 2)
+        distances.append((dist, labels[i]))
+    
+    # Sort by distance
+    distances.sort(key=lambda x: x[0])
+    
+    # Select the k-nearest neighbors
+    k_nearest = distances[:k]
+
+    # Get the labels of the k-nearest neighbors
+    k_labels = [label for _, label in k_nearest]
+
+    # Determine the majority class
+    majority_class = Counter(k_labels).most_common(1)[0][0]
+
+    # Print result
+    print(f"For k = {k}, Predicted class: {majority_class}")
